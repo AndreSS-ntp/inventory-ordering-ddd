@@ -10,8 +10,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-// PostgresStockRepository implements domain.StockRepository against a
-// stock_items table (see migrations/0001_init.up.sql).
 type PostgresStockRepository struct {
 	pool *pgxpool.Pool
 }

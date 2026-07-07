@@ -12,9 +12,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// Server adapts domain.OrderService to the generated OrderingServiceServer
-// interface - a second adapter alongside the HTTP handler, both calling the
-// same domain service.
 type Server struct {
 	orderingv1.UnimplementedOrderingServiceServer
 	service *domain.OrderService

@@ -8,24 +8,16 @@ import (
 	"time"
 )
 
-// MaxReserveAttempts bounds the read-check-CAS retry loop on optimistic
-// lock conflicts, per the spec: 5 attempts, small jittered delay between.
 const MaxReserveAttempts = 5
 
 var ErrVersionConflictExhausted = errors.New("version_conflict_exhausted")
 
-// ReservationResult mirrors the gRPC response shape (success + reason)
-// without coupling the domain layer to generated protobuf types.
 type ReservationResult struct {
-	Success bool
-	Reason  string
-	// Attempts is the number of read-check-CAS cycles performed (1 means
-	// no optimistic-lock conflicts were hit).
+	Success  bool
+	Reason   string
 	Attempts int
 }
 
-// ReservationService orchestrates reservation/release against a
-// StockRepository, retrying on optimistic-lock conflicts.
 type ReservationService struct {
 	repo   StockRepository
 	logger *slog.Logger
@@ -42,18 +34,10 @@ func jitterSleep(attempt int) {
 	time.Sleep(base + jitter)
 }
 
-// Reserve implements: read StockItem by SKU, check invariant, attempt
-// UPDATE ... WHERE sku = $1 AND version = $2. On a version conflict (no
-// rows affected) it re-reads and retries, up to MaxReserveAttempts, with a
-// jittered delay between attempts, then gives up with
-// "version_conflict_exhausted".
 func (s *ReservationService) Reserve(ctx context.Context, sku string, quantity int) (ReservationResult, error) {
 	return s.retryMutate(ctx, sku, quantity, (*StockItem).Reserve, "reserve")
 }
 
-// Release is the compensating counterpart to Reserve, using the same
-// optimistic-locking retry strategy since it's also a concurrent write to
-// reserved_quantity.
 func (s *ReservationService) Release(ctx context.Context, sku string, quantity int) (ReservationResult, error) {
 	return s.retryMutate(ctx, sku, quantity, (*StockItem).Release, "release")
 }

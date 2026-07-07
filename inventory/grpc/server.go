@@ -11,8 +11,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// Server adapts domain.ReservationService to the generated
-// InventoryServiceServer interface.
 type Server struct {
 	inventoryv1.UnimplementedInventoryServiceServer
 	service *domain.ReservationService

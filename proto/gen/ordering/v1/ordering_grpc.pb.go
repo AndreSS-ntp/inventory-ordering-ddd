@@ -25,10 +25,6 @@ const (
 // OrderingServiceClient is the client API for OrderingService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-//
-// OrderingService exposes order creation over gRPC, as a second adapter
-// alongside the HTTP REST wrapper - both sit in front of the same domain
-// service (coursework/ordering/domain.OrderService).
 type OrderingServiceClient interface {
 	CreateOrder(ctx context.Context, in *CreateOrderRequest, opts ...grpc.CallOption) (*Order, error)
 }
@@ -54,10 +50,6 @@ func (c *orderingServiceClient) CreateOrder(ctx context.Context, in *CreateOrder
 // OrderingServiceServer is the server API for OrderingService service.
 // All implementations must embed UnimplementedOrderingServiceServer
 // for forward compatibility.
-//
-// OrderingService exposes order creation over gRPC, as a second adapter
-// alongside the HTTP REST wrapper - both sit in front of the same domain
-// service (coursework/ordering/domain.OrderService).
 type OrderingServiceServer interface {
 	CreateOrder(context.Context, *CreateOrderRequest) (*Order, error)
 	mustEmbedUnimplementedOrderingServiceServer()

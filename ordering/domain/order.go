@@ -15,8 +15,6 @@ const (
 
 var ErrInvalidQuantity = errors.New("invalid_quantity")
 
-// Order is the Ordering aggregate. It starts pending, and moves to either
-// reserved or failed once Inventory.Reserve has been called synchronously.
 type Order struct {
 	ID            string
 	SKU           string

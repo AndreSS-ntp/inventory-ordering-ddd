@@ -1,5 +1,3 @@
-# Build context is the repo root (see docker-compose.yml) so this stage can
-# reach the sibling proto/ module referenced via a go.mod replace directive.
 FROM golang:1.25-alpine AS builder
 WORKDIR /src
 COPY proto/ proto/

@@ -9,7 +9,6 @@ CREATE TABLE stock_items (
     CONSTRAINT reserved_lte_total CHECK (reserved_quantity <= total_quantity)
 );
 
--- Demo seed data so grpcurl/curl calls work out of the box.
 INSERT INTO stock_items (sku, total_quantity, reserved_quantity, version) VALUES
     ('SKU-001', 100, 0, 0),
     ('SKU-002', 10, 0, 0),

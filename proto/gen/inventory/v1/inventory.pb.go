@@ -74,15 +74,10 @@ func (x *ReserveRequest) GetQuantity() int32 {
 }
 
 type ReserveResponse struct {
-	state   protoimpl.MessageState `protogen:"open.v1"`
-	Success bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
-	// Empty on success. One of "insufficient_stock", "version_conflict_exhausted"
-	// or a generic error reason on failure.
-	Reason string `protobuf:"bytes,2,opt,name=reason,proto3" json:"reason,omitempty"`
-	// Number of read-check-CAS attempts made (1 = succeeded/failed on the
-	// first try, no optimistic-lock conflicts). Surfaced for the load-test
-	// report's "average retries per successful request" metric.
-	Attempts      int32 `protobuf:"varint,3,opt,name=attempts,proto3" json:"attempts,omitempty"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Reason        string                 `protobuf:"bytes,2,opt,name=reason,proto3" json:"reason,omitempty"`
+	Attempts      int32                  `protobuf:"varint,3,opt,name=attempts,proto3" json:"attempts,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }

@@ -4,9 +4,6 @@ package ordering.v1;
 
 option go_package = "coursework/proto/gen/ordering/v1;orderingv1";
 
-// OrderingService exposes order creation over gRPC, as a second adapter
-// alongside the HTTP REST wrapper - both sit in front of the same domain
-// service (coursework/ordering/domain.OrderService).
 service OrderingService {
   rpc CreateOrder(CreateOrderRequest) returns (Order);
 }

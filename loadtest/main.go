@@ -1,12 +1,3 @@
-// Command loadtest fires N concurrent POST /orders requests at a running
-// Ordering instance, all targeting the same SKU, and reports:
-//   - number of successful (reserved) orders
-//   - number of failed orders (with a breakdown by reason)
-//   - average number of Inventory read-check-CAS attempts per successful order
-//   - total wall-clock time
-//
-// Output is printed as a human-readable table and as CSV (stdout), so it can
-// be pasted directly into a report.
 package main
 
 import (

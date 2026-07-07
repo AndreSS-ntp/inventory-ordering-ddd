@@ -10,15 +10,11 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-// InventoryClient adapts the generated Inventory gRPC client to the
-// domain.InventoryReserver port, applying a per-call timeout.
 type InventoryClient struct {
 	client  inventoryv1.InventoryServiceClient
 	timeout time.Duration
 }
 
-// NewInventoryClient dials addr (e.g. "inventory:50052") and returns a ready
-// client plus a close function for the underlying connection.
 func NewInventoryClient(addr string, timeout time.Duration) (*InventoryClient, func() error, error) {
 	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {

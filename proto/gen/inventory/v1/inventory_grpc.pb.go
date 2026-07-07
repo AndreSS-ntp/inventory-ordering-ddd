@@ -26,15 +26,8 @@ const (
 // InventoryServiceClient is the client API for InventoryService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-//
-// InventoryService manages stock levels and reservations for SKUs.
 type InventoryServiceClient interface {
-	// Reserve attempts to reserve the given quantity of a SKU.
-	// It enforces reserved_quantity <= total_quantity under concurrent access
-	// via optimistic locking with bounded retries.
 	Reserve(ctx context.Context, in *ReserveRequest, opts ...grpc.CallOption) (*ReserveResponse, error)
-	// Release is the compensating action that decreases reserved_quantity,
-	// used when a caller (e.g. Ordering) needs to roll back a reservation.
 	Release(ctx context.Context, in *ReleaseRequest, opts ...grpc.CallOption) (*ReleaseResponse, error)
 }
 
@@ -69,15 +62,8 @@ func (c *inventoryServiceClient) Release(ctx context.Context, in *ReleaseRequest
 // InventoryServiceServer is the server API for InventoryService service.
 // All implementations must embed UnimplementedInventoryServiceServer
 // for forward compatibility.
-//
-// InventoryService manages stock levels and reservations for SKUs.
 type InventoryServiceServer interface {
-	// Reserve attempts to reserve the given quantity of a SKU.
-	// It enforces reserved_quantity <= total_quantity under concurrent access
-	// via optimistic locking with bounded retries.
 	Reserve(context.Context, *ReserveRequest) (*ReserveResponse, error)
-	// Release is the compensating action that decreases reserved_quantity,
-	// used when a caller (e.g. Ordering) needs to roll back a reservation.
 	Release(context.Context, *ReleaseRequest) (*ReleaseResponse, error)
 	mustEmbedUnimplementedInventoryServiceServer()
 }
