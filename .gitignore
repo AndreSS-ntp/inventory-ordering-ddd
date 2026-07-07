@@ -1,0 +1,5 @@
+*.exe
+/inventory/inventory
+/ordering/ordering
+/loadtest/loadtest
+.claude/

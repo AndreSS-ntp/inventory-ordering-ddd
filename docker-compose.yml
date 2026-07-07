@@ -1,0 +1,110 @@
+services:
+  postgres-inventory:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: inventory_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - pg_inventory_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d inventory_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  postgres-ordering:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ordering_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - pg_ordering_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ordering_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  inventory-migrate:
+    image: migrate/migrate:v4.17.1
+    depends_on:
+      postgres-inventory:
+        condition: service_healthy
+    volumes:
+      - ./inventory/migrations:/migrations:ro
+    command:
+      - "-path=/migrations"
+      - "-database=postgres://postgres:postgres@postgres-inventory:5432/inventory_db?sslmode=disable"
+      - "up"
+    restart: "no"
+
+  ordering-migrate:
+    image: migrate/migrate:v4.17.1
+    depends_on:
+      postgres-ordering:
+        condition: service_healthy
+    volumes:
+      - ./ordering/migrations:/migrations:ro
+    command:
+      - "-path=/migrations"
+      - "-database=postgres://postgres:postgres@postgres-ordering:5432/ordering_db?sslmode=disable"
+      - "up"
+    restart: "no"
+
+  inventory:
+    build:
+      context: .
+      dockerfile: inventory/Dockerfile
+    depends_on:
+      postgres-inventory:
+        condition: service_healthy
+      inventory-migrate:
+        condition: service_completed_successfully
+    environment:
+      INVENTORY_DB_DSN: postgres://postgres:postgres@postgres-inventory:5432/inventory_db?sslmode=disable
+      INVENTORY_GRPC_PORT: "50052"
+    ports:
+      - "50052:50052"
+    healthcheck:
+      test: ["CMD-SHELL", "echo > /dev/tcp/127.0.0.1/50052"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  ordering:
+    build:
+      context: .
+      dockerfile: ordering/Dockerfile
+    depends_on:
+      postgres-ordering:
+        condition: service_healthy
+      ordering-migrate:
+        condition: service_completed_successfully
+      inventory:
+        condition: service_healthy
+    environment:
+      ORDERING_DB_DSN: postgres://postgres:postgres@postgres-ordering:5432/ordering_db?sslmode=disable
+      ORDERING_GRPC_PORT: "50051"
+      ORDERING_HTTP_PORT: "8080"
+      INVENTORY_GRPC_ADDR: inventory:50052
+      INVENTORY_CALL_TIMEOUT: "3s"
+    ports:
+      - "50051:50051"
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:8080/healthz"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+volumes:
+  pg_inventory_data:
+  pg_ordering_data:

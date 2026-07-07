@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package inventory.v1;
+
+option go_package = "coursework/proto/gen/inventory/v1;inventoryv1";
+
+// InventoryService manages stock levels and reservations for SKUs.
+service InventoryService {
+  // Reserve attempts to reserve the given quantity of a SKU.
+  // It enforces reserved_quantity <= total_quantity under concurrent access
+  // via optimistic locking with bounded retries.
+  rpc Reserve(ReserveRequest) returns (ReserveResponse);
+
+  // Release is the compensating action that decreases reserved_quantity,
+  // used when a caller (e.g. Ordering) needs to roll back a reservation.
+  rpc Release(ReleaseRequest) returns (ReleaseResponse);
+}
+
+message ReserveRequest {
+  string sku = 1;
+  int32 quantity = 2;
+}
+
+message ReserveResponse {
+  bool success = 1;
+  // Empty on success. One of "insufficient_stock", "version_conflict_exhausted"
+  // or a generic error reason on failure.
+  string reason = 2;
+  // Number of read-check-CAS attempts made (1 = succeeded/failed on the
+  // first try, no optimistic-lock conflicts). Surfaced for the load-test
+  // report's "average retries per successful request" metric.
+  int32 attempts = 3;
+}
+
+message ReleaseRequest {
+  string sku = 1;
+  int32 quantity = 2;
+}
+
+message ReleaseResponse {
+  bool success = 1;
+  string reason = 2;
+  int32 attempts = 3;
+}
